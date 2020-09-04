@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="16dp"
+    android:layout_margin="@dimen/rental_item_card_view_margins"
     app:cardBackgroundColor="@android:color/white"
-    app:cardCornerRadius="15dp"
-    app:cardElevation="8dp">
+    app:cardCornerRadius="@dimen/default_corner_radius"
+    app:cardElevation="@dimen/default_elevation">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,11 +17,11 @@
 
         <ImageView
             android:id="@+id/rentalImage"
-            android:layout_width="150dp"
-            android:layout_height="80dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="16dp"
+            android:layout_width="@dimen/rental_item_image_width"
+            android:layout_height="@dimen/rental_item_image_height"
+            android:layout_marginStart="@dimen/rental_item_image_margins"
+            android:layout_marginTop="@dimen/rental_item_image_margins"
+            android:layout_marginBottom="@dimen/rental_item_image_margins"
             android:adjustViewBounds="true"
             android:scaleType="fitXY"
             tools:src="@drawable/ic_search" />
@@ -30,12 +30,12 @@
             android:id="@+id/rentalName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="30dp"
+            android:layout_marginStart="@dimen/rental_item_name_start_margin"
             android:ellipsize="end"
-            android:maxWidth="200dp"
+            android:maxWidth="@dimen/rental_item_name_text_max_width"
             android:maxLines="3"
             android:textColor="@android:color/black"
-            android:textSize="16sp"
+            android:textSize="@dimen/rental_item_name_text_size"
             tools:text="trailer" />
 
     </LinearLayout>
