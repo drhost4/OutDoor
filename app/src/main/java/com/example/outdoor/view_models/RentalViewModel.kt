@@ -25,47 +25,55 @@ class RentalViewModel : ViewModel() {
 
     private val callback = object : Callback<RentalResponse> {
         override fun onFailure(call: Call<RentalResponse>?, t: Throwable?) {
-            loadingIndicator.postValue(false)
-            displayDialog.postValue(
-                DialogInfo(
-                    R.string.no_results_title,
-                    R.string.no_results_description,
-                    R.string.no_results_positive
-                ))
-            Log.d(RentalViewModel::class.java.simpleName, "Failure in retrieving results")
+            processResponseFailure()
         }
 
         override fun onResponse(
             call: Call<RentalResponse>?,
             response: Response<RentalResponse>?
         ) {
-            loadingIndicator.postValue(false)
-            response?.isSuccessful.let {
-                val rentalResponse = response?.body()
-                if (rentalResponse?.rentalData?.size!! > 0) {
-                    val rentalData = ArrayList<RentalListData>()
-                    for (rentalResponseData in rentalResponse.rentalData) {
-                        rentalData.add(
-                            RentalListData(
-                                rentalResponseData.attributes.rentalCompanyName,
-                                getImageUrl(
-                                    rentalResponseData.relationships.primaryImage.imageData.imageId,
-                                    rentalResponse.includedData
-                                )
+            processResponseSuccess(response)
+        }
+    }
+
+    private fun processResponseFailure() {
+        loadingIndicator.postValue(false)
+        displayDialog.postValue(
+            DialogInfo(
+                R.string.no_results_title,
+                R.string.no_results_description,
+                R.string.no_results_positive
+            ))
+        Log.d(RentalViewModel::class.java.simpleName, "Failure in retrieving results")
+    }
+
+    private fun processResponseSuccess(response: Response<RentalResponse>?) {
+        loadingIndicator.postValue(false)
+        response?.isSuccessful.let {
+            val rentalResponse = response?.body()
+            if (rentalResponse?.rentalData?.size!! > 0) {
+                val rentalData = ArrayList<RentalListData>()
+                for (rentalResponseData in rentalResponse.rentalData) {
+                    rentalData.add(
+                        RentalListData(
+                            rentalResponseData.attributes.rentalCompanyName,
+                            getImageUrl(
+                                rentalResponseData.relationships.primaryImage.imageData.imageId,
+                                rentalResponse.includedData
                             )
                         )
-                    }
-
-                    rentalListData.postValue(rentalData)
-                } else {
-                    displayDialog.postValue(
-                        DialogInfo(
-                            R.string.no_results_title,
-                            R.string.no_results_description,
-                            R.string.no_results_positive
-                        ))
-                    Log.d(RentalViewModel::class.java.simpleName, "No results found for search: " + inputSearchString)
+                    )
                 }
+
+                rentalListData.postValue(rentalData)
+            } else {
+                displayDialog.postValue(
+                    DialogInfo(
+                        R.string.no_results_title,
+                        R.string.no_results_description,
+                        R.string.no_results_positive
+                    ))
+                Log.d(RentalViewModel::class.java.simpleName, "No results found for search: " + inputSearchString)
             }
         }
     }
