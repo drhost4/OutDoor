@@ -3,6 +3,7 @@ package com.example.outdoor
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.outdoor.models.DialogInfo
 import com.example.outdoor.models.IncludedData
 import com.example.outdoor.models.RentalListData
 import com.example.outdoor.models.RentalResponse
@@ -11,12 +12,15 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class RentalViewModel : ViewModel() {
-    private val rentalListData = MutableLiveData<List<RentalListData>>()
+    val rentalListData = MutableLiveData<List<RentalListData>>()
+    val loadingIndicator = MutableLiveData<Boolean>()
+    val displayDialog = MutableLiveData<DialogInfo>()
+
     private val repoRetriever = RentalAPI()
 
     private val callback = object : Callback<RentalResponse> {
         override fun onFailure(call: Call<RentalResponse>?, t: Throwable?) {
-//            loadingIndicator.postValue(false)
+            loadingIndicator.postValue(false)
 //            if (!ConnectivityUtility.isConnected(connectivityManager)) {
 //                displayDialog.postValue(
 //                    DialogInfo(
@@ -45,28 +49,24 @@ class RentalViewModel : ViewModel() {
             call: Call<RentalResponse>?,
             response: Response<RentalResponse>?
         ) {
-//            loadingIndicator.postValue(false)
+            loadingIndicator.postValue(false)
             response?.isSuccessful.let {
                 val rentalResponse = response?.body()
                 if (rentalResponse?.rentalData?.size!! > 0) {
                     val rentalData = ArrayList<RentalListData>()
                     for (rentalResponseData in rentalResponse.rentalData) {
-                        rentalData.add(RentalListData(rentalResponseData.attributes.rentalCompanyName,
-                            getImageUrl(rentalResponseData.relationships.primaryImage.imageData.imageId, rentalResponse.includedData)
-                            ))
+                        rentalData.add(
+                            RentalListData(
+                                rentalResponseData.attributes.rentalCompanyName,
+                                getImageUrl(
+                                    rentalResponseData.relationships.primaryImage.imageData.imageId,
+                                    rentalResponse.includedData
+                                )
+                            )
+                        )
                     }
 
                     rentalListData.postValue(rentalData)
-
-//                    restaurantsData.postValue(restaurants)
-//                    displayDialog.postValue(
-//                        DialogInfo(
-//                            R.string.no_restaurants_title,
-//                            R.string.no_restaurants_text,
-//                            R.string.no_restaurants_positive,
-//                            false, 0
-//                        )
-//                    )
                 } else {
 //                    restaurantsData.postValue(response?.body())
 //                    restaurants = response?.body() as ArrayList<Restaurant>
@@ -76,13 +76,8 @@ class RentalViewModel : ViewModel() {
     }
 
     fun loadData(searchString: String) {
-//        val rentalData = rentalListData.value
-//        if (rentalData?.size!! > 0) {
-//            rentalListData.postValue(rentalData)
-//        } else {
-//            loadingIndicator.postValue(true)
-            repoRetriever.getRentals(searchString, callback)
- //       }
+        loadingIndicator.postValue(true)
+        repoRetriever.getRentals(searchString, callback)
     }
 
     private fun getImageUrl(imageId: String, includedData: ArrayList<IncludedData>): String {
