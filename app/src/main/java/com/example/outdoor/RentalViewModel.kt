@@ -1,6 +1,7 @@
 package com.example.outdoor
 
 import android.util.Log
+import android.view.KeyEvent
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.outdoor.models.DialogInfo
@@ -15,34 +16,17 @@ class RentalViewModel : ViewModel() {
     val rentalListData = MutableLiveData<List<RentalListData>>()
     val loadingIndicator = MutableLiveData<Boolean>()
     val displayDialog = MutableLiveData<DialogInfo>()
+    val showKeyboard = MutableLiveData<Boolean>()
 
     private val repoRetriever = RentalAPI()
+    private var inputSearchString = ""
 
     private val callback = object : Callback<RentalResponse> {
         override fun onFailure(call: Call<RentalResponse>?, t: Throwable?) {
             loadingIndicator.postValue(false)
-//            if (!ConnectivityUtility.isConnected(connectivityManager)) {
-//                displayDialog.postValue(
-//                    DialogInfo(
-//                        R.string.no_internet_title,
-//                        R.string.no_internet_text,
-//                        R.string.no_internet_positive,
-//                        true,
-//                        R.string.no_internet_negative
-//                    )
-//                )
-//            } else {
-//                displayDialog.postValue(
-//                    DialogInfo(
-//                        R.string.no_restaurants_title,
-//                        R.string.no_restaurants_text,
-//                        R.string.no_restaurants_positive,
-//                        false, 0
-//                    )
-//                )
-//            }
-//
-            Log.e("MainActivity", "Problem calling Restaurants API}")
+            displayDialog.postValue(
+                DialogInfo(R.string.no_results_title, R.string.no_results_description, R.string.no_results_positive))
+            Log.d(RentalViewModel::class.java.simpleName, "Failure in retrieving results")
         }
 
         override fun onResponse(
@@ -68,16 +52,33 @@ class RentalViewModel : ViewModel() {
 
                     rentalListData.postValue(rentalData)
                 } else {
-//                    restaurantsData.postValue(response?.body())
-//                    restaurants = response?.body() as ArrayList<Restaurant>
+                    Log.d(RentalViewModel::class.java.simpleName, "No results found for search: " + inputSearchString)
                 }
             }
         }
     }
 
-    fun loadData(searchString: String) {
-        loadingIndicator.postValue(true)
-        repoRetriever.getRentals(searchString, callback)
+    fun processSearchIconSelection() {
+        showKeyboard.postValue(true)
+    }
+
+    fun processSearchFieldSelection() {
+        showKeyboard.postValue(true)
+    }
+
+    fun processEnteredKey(keyCode: Int, event: KeyEvent, searchString: String): Boolean {
+        if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
+            showKeyboard.postValue(true)
+            if (searchString.isNotBlank()) {
+                inputSearchString = searchString
+                showKeyboard.postValue(false)
+                loadingIndicator.postValue(true)
+                repoRetriever.getRentals(searchString, callback)
+            }
+            return true
+        }
+
+        return false
     }
 
     private fun getImageUrl(imageId: String, includedData: ArrayList<IncludedData>): String {
