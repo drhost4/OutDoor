@@ -42,6 +42,7 @@ class RentalListFragment : Fragment() {
         })
 
         viewModel.showKeyboard.observe(this, Observer { hide -> displayKeyboard(hide) })
+        viewModel.displayDialog.observe(this, Observer { dialogInfo -> displayDialog(dialogInfo) })
         viewModel.rentalListData.observe(this, Observer { rentalList ->  displaySearchList(rentalList)})
         rentalRecycler.layoutManager = LinearLayoutManager(context)
         val emptyRentalListData = ArrayList<RentalListData>()

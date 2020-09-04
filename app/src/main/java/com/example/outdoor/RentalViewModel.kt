@@ -52,6 +52,8 @@ class RentalViewModel : ViewModel() {
 
                     rentalListData.postValue(rentalData)
                 } else {
+                    displayDialog.postValue(
+                        DialogInfo(R.string.no_results_title, R.string.no_results_description, R.string.no_results_positive))
                     Log.d(RentalViewModel::class.java.simpleName, "No results found for search: " + inputSearchString)
                 }
             }
